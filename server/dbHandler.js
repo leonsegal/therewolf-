@@ -19,7 +19,6 @@ function saveMessage(data) {
           reject(error);
         }
 
-        console.log("results: ", results); // deleteme
         resolve(results);
       },
     );

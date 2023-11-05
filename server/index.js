@@ -54,7 +54,6 @@ io.on("connection", (socket) => {
     try {
       await saveMessage(data);
     } catch (e) {
-      console.error("fell over!"); // deleteme
       console.error(e);
     }
   });
