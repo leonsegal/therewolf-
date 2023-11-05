@@ -1,8 +1,11 @@
+require("dotenv").config();
+
 let express = require("express");
 let app = express();
 let cors = require("cors");
 let http = require("http");
 let { Server } = require("socket.io");
+const { saveMessage } = require("./dbHandler");
 
 app.use(cors()); // middleware
 
@@ -21,29 +24,39 @@ let chatRoom = "";
 let allUsers = [];
 
 io.on("connection", (socket) => {
-  let createdTime = new Date().toLocaleTimeString();
+  let createdTime = Date.now();
 
   socket.on("join_room", (data) => {
-    let { userName, room } = data;
+    let { username, room } = data;
     socket.join(room);
 
     socket.to(room).emit("receive_message", {
-      message: `${userName} has joined the chat room`,
-      userName: chatBot,
+      message: `${username} has joined the chat room`,
+      username: chatBot,
       createdTime,
     });
 
     socket.emit("receive_message", {
-      message: `Welcome ${userName}`,
-      userName: chatBot,
+      message: `Welcome ${username}`,
+      username: chatBot,
       createdTime,
     });
 
     chatRoom = room;
-    allUsers.push({ id: socket.id, userName, room });
+    allUsers.push({ id: socket.id, username, room });
     let chatRoomUsers = allUsers.filter((user) => user.room === room);
     socket.to(room).emit("chat_room_users", chatRoomUsers);
     socket.emit("chat_room_users", chatRoomUsers);
+  });
+
+  socket.on("send_message", async (data) => {
+    io.in(data.room).emit("receive_message", data);
+    try {
+      await saveMessage(data);
+    } catch (e) {
+      console.error("fell over!"); // deleteme
+      console.error(e);
+    }
   });
 });
 

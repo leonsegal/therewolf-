@@ -1,12 +1,12 @@
 import styles from "./styles.module.css";
 import { useNavigate } from "react-router-dom";
 
-export default function Home({ userName, setUserName, room, setRoom, socket }) {
+export default function Home({ username, setUserName, room, setRoom, socket }) {
   let navigate = useNavigate();
 
   function joinRoom() {
-    if (room && userName) {
-      socket.emit("join_room", { userName, room });
+    if (room && username) {
+      socket.emit("join_room", { username, room });
 
       navigate("/chat", { replace: true });
     }
